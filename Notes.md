@@ -36,3 +36,7 @@
     - the 'reset' vector in the interrupt vector table runs even before the main() function // when program boots up
     - ```sys_tick_handler``` is an alias for a ```null_handler``` which does nothing and since systick_handler is a weak function, it can be defined somewhere else too
     - we use a 64bit variable to store the count of ticks, but since the microcontroller is 32 bit, addition would be performed twice (32+32). the problem arises when a new interrupt occurs between these two addition operations. hence, mask other interrupts when entering systick_handler interrupt.
+
+### PWM and Timers
+- the autoReloadValue(ARR) register dictates the ticking frequency, compareValue(CCR) register compares the value of the coutner with the autoReloadValue, compareValue register can be modified to control the duty cycle
+- PWM is used for motor control (controlling the speed of the motor etc.) or control the frequency of the LED, or control the intentsity of the MOSFET
