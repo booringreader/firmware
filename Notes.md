@@ -37,6 +37,10 @@
     - ```sys_tick_handler``` is an alias for a ```null_handler``` which does nothing and since systick_handler is a weak function, it can be defined somewhere else too
     - we use a 64bit variable to store the count of ticks, but since the microcontroller is 32 bit, addition would be performed twice (32+32). the problem arises when a new interrupt occurs between these two addition operations. hence, mask other interrupts when entering systick_handler interrupt.
 
-### PWM and Timers
+### PWM and Timers - use system clock to generate a modulated pulse, using `timer` peripheral hardware and the concept of PWM
 - the autoReloadValue(ARR) register dictates the ticking frequency, compareValue(CCR) register compares the value of the coutner with the autoReloadValue, compareValue register can be modified to control the duty cycle
 - PWM is used for motor control (controlling the speed of the motor etc.) or control the frequency of the LED, or control the intentsity of the MOSFET
+- "alternate function mapping table" in the datasheet shows that the PA5 (port A, pin5) can also be mapped with the TIM2 timer, hence we use TIM2 for setup (timer.c)
+- TIM2 is a peripheral pin, whose output is mapped to the pin5 of port A on stm32. we are using this peripheral to output the value of pwm, which will be used for intensity control or other objectives on hardware
+- timer_set_mode() takes parameters: output pin, compareVal (clock division), alignment of pulse, direction (UP or DOWN) of counter progression
+- we want 1000 cycles per second(compareValue) (10KHz) and 1000 divisions (autoReloadValue)
