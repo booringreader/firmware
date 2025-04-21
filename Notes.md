@@ -44,3 +44,13 @@
 - TIM2 is a peripheral pin, whose output is mapped to the pin5 of port A on stm32. we are using this peripheral to output the value of pwm, which will be used for intensity control or other objectives on hardware
 - timer_set_mode() takes parameters: output pin, compareVal (clock division), alignment of pulse, direction (UP or DOWN) of counter progression
 - we want 1000 cycles per second(compareValue) (10KHz) and 1000 divisions (autoReloadValue)
+
+### Bootloader
+- bootloader and the firmware blocks both have independent code, data and interrupt vector tables.
+- bootloader jobs:
+    - load the address of the firmware / main application's reset_vector (address which acts as the starting point of execution) and jump there (begin execution)
+    - prevent linking when bootloader size exceeds allowed limit (prevent cyber attacks)
+    - pad the bootloader to max size (32K in this case), this makes it easier to put the bootloader as the first block of the main applicaiton
+    - each entry in IVT is 4bytes
+- main application / firmware jobs:
+    - 
