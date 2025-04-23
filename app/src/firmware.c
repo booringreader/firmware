@@ -1,11 +1,18 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
+#include <libopencm3/cm3/scb.h>
+
 
 #include "../inc/core/system.h"
 #include "../inc/core/timer.h"
 
 #define LED_PORT            GPIOA
 #define LED_PIN             GPIO5
+#define BOOTLOADER_SIZE     (0x8000U)
+
+static void vector_setup(void){
+    SCB_VTOR = BOOTLOADER_SIZE; // set the vector table offset to the start of the main application
+}
 
 static void gpio_config(void){
     rcc_periph_clock_enable(RCC_GPIOA); //! turn ON the clock for GPIO port A
@@ -14,6 +21,7 @@ static void gpio_config(void){
 }
 
 int main(void){
+    vector_setup();
     system_setup();
     gpio_config();
     timer_setup();

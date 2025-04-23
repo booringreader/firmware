@@ -52,5 +52,12 @@
     - prevent linking when bootloader size exceeds allowed limit (prevent cyber attacks)
     - pad the bootloader to max size (32K in this case), this makes it easier to put the bootloader as the first block of the main applicaiton
     - each entry in IVT is 4bytes
-- main application / firmware jobs:
-    - 
+- main application (firmware + bootloader) jobs:
+    - attach bootloader object file to the firmware (using .S file)
+    - when the firmware execution begins from 0x8000, it will start encountering interrupts from systick_enable() function, the workflow would look like this : encounter interrupt while executing in code block -> jump in the IVT to resolve interrupt -> jump back in the code block to resume execution -> encounter interrupt -> repeat. Instead of jumping in the IVT of the firmware, the PC would look for the interrupt in the IVT of the bootloader. To resolve this, arm chips have a VTOR, vector table offset register.
+
+### Assembly
+- `asm-dump` file may show `UNDEFINED` in .vector-table if the hardware isn't connected, since we would be trying to access registers (ARR,CCR) which aren't available yet.
+- constant data associated with a function is placed in the vicinity of that function translation (maybe for efficiency)
+- using vector-table structure to simplify syntax in bootloader.c, cast the address of the main application into the vector table, then acesss the reset() vector to initiate execution of main application
+- the c/c++ compiler inserts padding in structure based on some rules, but each entity in the vector-table is uint32_t (4bytes), hence no padding
