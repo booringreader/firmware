@@ -61,3 +61,23 @@
 - constant data associated with a function is placed in the vicinity of that function translation (maybe for efficiency)
 - using vector-table structure to simplify syntax in bootloader.c, cast the address of the main application into the vector table, then acesss the reset() vector to initiate execution of main application
 - the c/c++ compiler inserts padding in structure based on some rules, but each entity in the vector-table is uint32_t (4bytes), hence no padding
+
+### UART Driver - hardware based transfer protocol
+- even with different make files and directories, bootlaoder and main application can have shared code through UART
+- PA2 and PA3 are connected with USART2 for TX and RX, hence we use USART2 instead of USART1 to ease the connection process.
+- UART (universal asynchronous receive and transmit) : data transfer happens at an agreed upon baud rate.
+    - USART (universal synchronous or asynchronous receive and transmit) : data transfer can be synced with an internal clock
+    - usart uses the rs232 protocol which has a lot of rules on how a signal is transmitted and received. usart_set_flow_control() regulates this protocol
+- usart_send_blocking() sends data in blocking mode, no code is executed while the data is being sent. (non-blocking mode can also be used)
+- interrupts: usart_isr()
+    - normal interrupt byte received
+    - byte received and overload happened, more data overlaods the peripheral than it can handle, might lead to buffer overflow
+    - read flags / registers from peripheral to decide which of the above has happened
+    - store the excess data temporarily in a buffer variable
+- Driver Interface:
+    - `void uart_setup(void)` : clock, interrupts etc.
+    - `void uart_write(uint8_t* data, const uint32_t length)` : pointer to data, longer length, since multiple bytes can be transmitted
+    - `void uart_write_byte(uint8_t data)` : instead of bits, send one byte
+    - `uint32_t uart_read(uint8_t* data, const uint32_t length)` : pointer to data and length to be read; returns the number of bytes actually read
+    - `uint8_t uart_read_byte(void)` : read one byte of data
+    - `bool uart_data_available(void)` : check before reading data
