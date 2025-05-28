@@ -46,12 +46,18 @@ void uart_write(uint8_t* data, const uint32_t length){
 void uart_write_byte(uint8_t data){
     usart_send_blocking(USART2, (uint16_t)data);
 }
-uint32_t uart_read(uint8_t* data, const uint32_t length){
-
+uint32_t uart_read(uint8_t* data, const uint32_t length){ // rn only 1 byte can be read
+    if(length > 0 && data_available){
+        *data = data_buffer;
+        data_available = false;
+        return 1;
+    }
+    return 0;
 }
 uint8_t uart_read_byte(void){
-
+    data_available = false;
+    return data_buffer;
 }
 bool uart_data_available(void){
-
+    return data_available;
 }

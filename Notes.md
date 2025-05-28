@@ -81,3 +81,8 @@
     - `uint32_t uart_read(uint8_t* data, const uint32_t length)` : pointer to data and length to be read; returns the number of bytes actually read
     - `uint8_t uart_read_byte(void)` : read one byte of data
     - `bool uart_data_available(void)` : check before reading data
+- firmware.c:
+    - configure ports, pins and setup function
+    - main() : check if data is received and send ack
+    - uart data is usually characters, assuming we received a ascii character we add '1' to it and return the new data
+    - if we send data faster than the firmware can process it, the data will be overwritten (configured in uart.c)

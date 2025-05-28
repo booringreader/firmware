@@ -1,7 +1,7 @@
 #ifndef INC_UART_H
 #define INC_UART_H
 
-#include "common-defines.h"
+#include "common-defines.c"
 
 void uart_setup(void);
 void uart_write(uint8_t* data, const uint32_t length);
