@@ -85,4 +85,9 @@
     - configure ports, pins and setup function
     - main() : check if data is received and send ack
     - uart data is usually characters, assuming we received a ascii character we add '1' to it and return the new data
-    - if we send data faster than the firmware can process it, the data will be overwritten (configured in uart.c)
+    future work: (use ring buffer)
+        - if we send data faster than the firmware can process it, the data will be overwritten (configured in uart.c). hence we need more buffer storage
+        - making `data_available = false` can cause issues if more data comes in immediately after current one is read or an interrupt occurs
+
+### INTERRUPT SAFE RING BUFFER
+- system.c and system.h are modified to introduce a waiting period (delay) to simulate the condition of an ISR getting triggered and buffer being overwritten before it can be read

@@ -24,6 +24,15 @@ static void systick_setup(void){
 uint64_t system_get_ticks(void){
     return ticks;
 }
+
+void system_delay(uint64_t milliseconds){
+    uint64_t end_time = system_get_ticks() + milliseconds;
+    while(system_get_ticks() < end_time){
+        // wait until the specified time has passed
+        // this is a busy-wait loop, not recommended for production code
+    }
+}
+
 void system_setup(void){
     rcc_setup();
     systick_setup();
