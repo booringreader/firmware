@@ -1,0 +1,2 @@
+- git repo : ```firmware```
+- makefile repo : ```app```

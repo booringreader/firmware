@@ -3,22 +3,27 @@
 #include <libopencm3/stm32/usart.h>
 
 #include "core/uart.h"
+#include "core/ring-buffer.h"
 
 #define BAUD_RATE (115200)
+#define RING_BUFFER_SIZE (128) // for 10ms
 
-static uint8_t data_buffer = 0U;
-static bool data_available = false;
+static ring_buffer_t rb = {0U};
+
+static uint8_t data_buffer[RING_BUFFER_SIZE] = {0U};
 
 void usart_isr(void){ // interrupt handler
     const bool overrun_occured = usart_get_flag(USART2, USART_FLAG_ORE) == 1;
     const bool received_data = usart_get_flag(USART2, USART_FLAG_RXNE) == 1;
 
     if(received_data || overrun_occured){
-        data_buffer = (uint8_t)usart_recv(USART2);
-        data_available = true;
+        if(ring_buffer_write(&rb,(uint8_t)usart_recv(USART2))){
+            // error handling
+        }
     }
 }
 void uart_setup(void){
+    ring_buffer_setup(&rb, data_buffer, RING_BUFFER_SIZE);
     rcc_periph_clock_enable(RCC_USART2);
 
     usart_set_mode(USART2, USART_MODE_TX_RX);
@@ -47,17 +52,19 @@ void uart_write_byte(uint8_t data){
     usart_send_blocking(USART2, (uint16_t)data);
 }
 uint32_t uart_read(uint8_t* data, const uint32_t length){ // rn only 1 byte can be read
-    if(length > 0 && data_available){
-        *data = data_buffer;
-        data_available = false;
-        return 1;
+   if(length == 0) return 0;
+   for(uint32_t byte_read=0; byte_read<length; byte_read++){
+    if(!ring_buffer_read(&rb, &data[byte_read])){
+        return byte_read;
     }
-    return 0;
+   } 
+   return length;
 }
 uint8_t uart_read_byte(void){
-    data_available = false;
-    return data_buffer;
+    uint8_t byte = 0;
+    (void)uart_read(&byte, 1); //! to ignore a return value of func. typecast it to void
+    return byte;
 }
 bool uart_data_available(void){
-    return data_available;
+    return !ring_buffer_empty(&rb);
 }

@@ -91,3 +91,28 @@
 
 ### INTERRUPT SAFE RING BUFFER
 - system.c and system.h are modified to introduce a waiting period (delay) to simulate the condition of an ISR getting triggered and buffer being overwritten before it can be read
+- Ring Buffer (circular buffer): similar to round robin, data wraps around at the end
+- we take local copies of the read and write index, to avoid collisions in case multiple users access the buffer
+- if the read and write index become equal then all the data following the index is lost, since it gets overwritten before it can be read. 
+    - If such a case were to arise, we would need more storage
+    - we can move both pointers together, but that would be complex
+- ring-buffer size calculation 
+    - baud rate / 1000 : bytes coming in per second
+    - (bytes/second)*10 rounded off to nearest power of 2 : size of ring buffer
+
+### PACKET TRANSFER PROTOCOL
+- packet size is 18 bytes, with 1 leading byte reserved for the length of the data portion, followed by the data portion, last byte is the CRC-8 (8 bit) byte for error checking
+- CRC is calculated for all 17 preceding bytes, even if the data portion has only padding
+- total data portion size allowed is 16 bytes, whose length can be recorded using only 4 bits, but the 'length' portion is 8 bits, that's 4 bits remaining idle. These 4 bits can be used to fulfill some other purpose, say transferring packet between the system and another uart device, or implementing better error checking or collision handling on multi-bus system.
+- DC balancing is a concept which dictates that the longer a signal remains in one state, the more energy it takes to switch the state. if the 16 bytes of data portion is not used to the maximum, there would be padding and the signal through that padding would remain in the same state for a long period of time.
+- DC balancing is not a problem in slower protocls like uart because there is hardly any ac coupling or passing through transformers to get damaged.
+- predefined fixed packets for 
+    - ACK: acknowledgement
+    - NACK: not acknowledged
+    - ReTx: Retransmission request
+- `packet state machine` receives bytes from the data stream and converts them into packets
+    - 3 states of receiving packtet information (one for length, one for data bytes, one for CRC)
+    - CRC is checked through operations, then either of the 3 paths is followed
+        - retransmission requested (ReTx): retransmit the last packet (need to keep a record of the last sent in a buffer), without storing anything received so far
+        - if packet type is not ACK, send an ackowledgement and store the packet in a buffer
+        - request retransmit in case of bad CRC
