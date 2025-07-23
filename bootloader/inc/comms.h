@@ -7,6 +7,8 @@
 #define PACKET_LENGTH_BYTES (1)
 #define PACKET_CRC_LENGTH (1)
 #define PACKET_LENGTH (PACKET_LENGTH_BYTES + PACKET_DATA_LENGTH + PACKET_CRC_LENGTH)
+#define PACKET_RETX_DATA0   (0x19)
+#define PACKET_ACK_DATA0   (0x15)
 
 // create the packet structure
 typedef struct comms_packet_t{
@@ -21,5 +23,6 @@ void comms_update(void); // update the packet state machine
 boolean comms_packets_available(void);
 void comms_write(comms_packet_t* packet);
 void comms_read(comms_packet_t* packet);
+uint8_t comms_compute_crc(comms_packet_t* packet);
 
 #endif

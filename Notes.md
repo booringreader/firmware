@@ -116,3 +116,5 @@
         - retransmission requested (ReTx): retransmit the last packet (need to keep a record of the last sent in a buffer), without storing anything received so far
         - if packet type is not ACK, send an ackowledgement and store the packet in a buffer
         - request retransmit in case of bad CRC
+    - 0x19: retransmit packet
+    - 0x15: acknowledge
