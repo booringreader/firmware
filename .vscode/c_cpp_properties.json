@@ -3,14 +3,15 @@
         {
             "name": "STM32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/libopencm3/include",
+                "${workspaceFolder}/shared",
+                "${workspaceFolder}"
             ],
             "defines": [
-                "STM32F4",
-                "USE_FULL_LL_DRIVER"
+                "STM32F4"
             ],
             "compilerPath": "/opt/homebrew/bin/arm-none-eabi-gcc",
-            "intelliSenseMode": "linux-gcc-arm",
+            "intelliSenseMode": "gcc-arm",
             "cStandard": "c11",
             "cppStandard": "c++17"
         }
